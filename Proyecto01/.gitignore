@@ -1,0 +1,19 @@
+# Ignorar archivos WAV generados por los scripts
+*.wav
+
+# Entorno virtual de Python
+venv/
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+
+# Archivos de configuración de VSCode
+.vscode/
+
+# Archivos de usuario de Jupyter
+.ipynb_checkpoints/
+
+# Otros archivos temporales
+*.tmp
+*.log

@@ -6,6 +6,45 @@
 
 ---
 
+
+## Instrucciones de Uso
+
+### 1. Crear entorno virtual (recomendado)
+
+Desde la carpeta `Proyecto01`, ejecuta en terminal:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+```
+
+### 2. Instalar dependencias
+
+```bash
+pip install numpy matplotlib pyserial
+```
+
+> Nota: Para el problema 3 (control de reproductor en Windows) también se requiere `pywin32` y ejecutar en Windows.
+
+### 3. Ejecutar los archivos
+
+Puedes ejecutar cada problema por separado:
+
+```bash
+python problema1.py   # FFT con NumPy
+python problema2.py   # Filtro Complementario
+python problema3.py   # Control Serial (cliente)
+python problema4.py   # Generación de audio WAV
+```
+
+O puedes lanzar la interfaz gráfica para elegir el problema desde una ventana:
+
+```bash
+python interfaz.py
+```
+
+---
+
 ## Descripción General
 
 Laboratorio orientado al manejo de señales, procesamiento de audio y comunicación serial en Python, aplicando conceptos de Arquitectura de Hardware.
