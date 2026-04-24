@@ -10,6 +10,7 @@ ARCHIVOS = [
     ("Problema 1 – FFT con NumPy", "problema1.py"),
     ("Problema 2 – Filtro Complementario", "problema2.py"),
     ("Problema 3 – Control Serial (cliente)", "problema3.py"),
+    ("Problema 3 – Control Serial (servidor)", "server.py"),
     ("Problema 4 – Generación de Audio", "problema4.py"),
 ]
 

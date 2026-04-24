@@ -15,13 +15,15 @@ Desde la carpeta `Proyecto01`, ejecuta en terminal:
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+source venv/bin/activate  # En Windows para powershell: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+# venv\Scripts\activate 
+
 ```
 
 ### 2. Instalar dependencias
 
 ```bash
-pip install numpy matplotlib pyserial
+pip install numpy matplotlib pyserial pywin32
 ```
 
 > Nota: Para el problema 3 (control de reproductor en Windows) también se requiere `pywin32` y ejecutar en Windows.

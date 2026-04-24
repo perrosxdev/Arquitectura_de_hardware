@@ -1,26 +1,29 @@
 # Problema 3 – Control de Reproductor de Audio por Serial
-# Este script es solo un ejemplo de cliente (Linux, sin Win32Api)
-# Para pruebas reales en Windows, usar pyserial y Win32Api como en el enunciado
-#
-# Este código sirve para mandar comandos por el puerto serial a otro programa (el servidor).
-# El servidor debería estar en Windows y controlar el reproductor de música.
-# Aquí solo puedes probar el envío de comandos si tienes los puertos virtuales bien configurados.
+
+# Cliente para enviar comandos por serial en Windows (usar con server.py)
+# Asegúrate de tener pyserial instalado y VSPE configurado con COM1 <-> COM2
 
 import serial
 
 # Cambia los nombres de los puertos según tu sistema y configuración de VSPE
-SERIAL_PORT = '/dev/ttyS1'  # Ejemplo para Linux, en Windows sería 'COM2'
+
+# En Windows, usa COM2 (o el puerto que configuraste en VSPE)
+SERIAL_PORT = 'COM2'
 BAUDRATE = 9600
+
 
 def main():
     try:
-        ser = serial.Serial(SERIAL_PORT, BAUDRATE)
+        ser = serial.Serial(SERIAL_PORT, BAUDRATE, timeout=1)
         print("Comandos disponibles: PLAY / STOP / PAUSE / NEXT / PREV / VOL+ / VOL-")
         while True:
             cmd = input("Ingresa comando: ").strip().upper()
-            ser.write((cmd + '\n').encode())
+            if cmd:
+                ser.write((cmd + '\n').encode())
+    except serial.SerialException as e:
+        print(f"Error abriendo el puerto serial: {e}\n¿Está el servidor corriendo y el puerto correcto?")
     except Exception as e:
-        print(f"Error abriendo el puerto serial: {e}")
+        print(f"Error inesperado: {e}")
 
 if __name__ == "__main__":
     main()

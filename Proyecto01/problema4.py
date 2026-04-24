@@ -1,5 +1,4 @@
 # Problema 4 – Generación de Audio con el Módulo wave
-# Ejecuta este archivo para generar los archivos WAV solicitados
 import wave, struct, math
 
 def escala_mono(filename, escala, notas, rate, duration):
