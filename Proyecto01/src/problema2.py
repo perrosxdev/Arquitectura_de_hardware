@@ -37,11 +37,11 @@ def main(save_images=True):
     filt = Filter_Comp(sig, nA)
 
     plt.figure(figsize=(8,3))
-    t = np.arange(len(sig)) / S_RATE
-    plt.plot(t[:2000], sig[:2000], '-b', label='Original')
-    plt.plot(t[:2000], filt[:2000], '-r', label='Filtrado')
+    muestras = np.arange(200)
+    plt.plot(muestras, sig[:200], '-b', label='Original')
+    plt.plot(muestras, filt[:200], '-r', label='Filtrado')
     plt.title(f'Problema2 - Señal {idx} (azul original, rojo filtrada)')
-    plt.xlabel('Tiempo [s]')
+    plt.xlabel('Muestra')
     plt.legend()
     if save_images:
       plt.tight_layout(); plt.savefig(os.path.join(images_dir, f'Problema2_sig{idx}.png'))
