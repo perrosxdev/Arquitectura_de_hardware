@@ -4,22 +4,26 @@ from tkinter import messagebox
 import os
 
 ROOT = os.path.dirname(__file__)
-import problem1, problem2, problem4, problem3_server, problem3_client
+import problema1
+import problema2
+import problema4
+import problema3_server
+import problema3_cliente
 
 server_thread = None
 
 def run_problem1():
-    threading.Thread(target=problem1.main, daemon=True).start()
+    threading.Thread(target=problema1.main, daemon=True).start()
 
 def run_problem2():
-    threading.Thread(target=problem2.main, daemon=True).start()
+    threading.Thread(target=problema2.main, daemon=True).start()
 
 def run_problem4():
-    threading.Thread(target=problem4.main, daemon=True).start()
+    threading.Thread(target=problema4.main, daemon=True).start()
 
 def start_server(port):
     def target():
-        problem3_server.run_server(port)
+        problema3_server.run_server(port)
     global server_thread
     if server_thread and server_thread.is_alive():
         messagebox.showinfo('Server', 'Servidor ya está en ejecución')
@@ -29,7 +33,7 @@ def start_server(port):
     messagebox.showinfo('Server', f'Servidor iniciado en {port} (ver consola)')
 
 def send_cmd(port, cmd):
-    threading.Thread(target=problem3_client.send_command, args=(port, cmd), daemon=True).start()
+    threading.Thread(target=problema3_cliente.send_command, args=(port, cmd), daemon=True).start()
 
 def build_gui():
     root = tk.Tk()
