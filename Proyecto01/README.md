@@ -342,3 +342,54 @@ Este proyecto evalúa:
   * Justificar decisiones técnicas
 
 ---
+
+**Instalación y ejecución**
+
+- **Crear entorno virtual (Windows CMD / PowerShell)**:
+
+  - CMD:
+
+    python -m venv venv
+    venv\Scripts\activate
+
+  - PowerShell:
+
+    python -m venv venv
+    .\venv\Scripts\Activate.ps1
+
+- **Instalar dependencias**:
+
+  pip install -r requirements.txt
+
+- **Descargas externas necesarias**:
+
+  - VSPE (Virtual Serial Ports Emulator) — para crear pares de puertos COM virtuales.
+  - Un reproductor (AIMP recomendado o Winamp) con al menos 10 archivos mp3/mp4.
+
+- **Configuración sugerida para Problema 3**:
+
+  1. Crear un par de puertos virtuales en VSPE, por ejemplo `COM5 <-> COM6`.
+  2. Ejecutar el servidor en el extremo que controla el reproductor (ej: escucha `COM5`).
+  3. El cliente (o la GUI) envía comandos al puerto opuesto (`COM6`) que estarán redirigidos a `COM5`.
+
+- **Comandos rápidos**:
+
+  - Ejecutar la interfaz gráfica (GUI):
+
+    python src/gui.py
+
+  - Iniciar servidor manualmente (si no usas la GUI):
+
+    python src/problem3_server.py --port COM5
+
+  - Enviar comando desde cliente (ejemplo):
+
+    python src/problem3_client.py --port COM6 PLAY
+
+- **Notas / Problemas comunes**:
+
+  - En Windows debes usar pywin32 (incluido en `requirements.txt`). Si hay problemas con `win32api` instala manualmente:
+
+    pip install pywin32
+
+  - Asegúrate que el reproductor (AIMP/Winamp) está en primer plano o acepta las teclas multimedia dependientes del sistema.
