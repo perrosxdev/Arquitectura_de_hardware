@@ -23,8 +23,8 @@ def main(save_images=True):
     plt.title('Señal combinada en dominio del tiempo (primeros 0.05 s)')
     plt.xlabel('Tiempo [s]')
     plt.ylabel('Amplitud')
-    if save_images:
-        plt.tight_layout(); plt.savefig(os.path.join(images_dir,'Problema1_time.png'))
+    plt.tight_layout()
+    plt.savefig(os.path.join(images_dir, 'Problema1_time.png'))
     plt.show()
 
     # FFT
@@ -38,8 +38,8 @@ def main(save_images=True):
     plt.xlabel('Frecuencia [Hz]')
     plt.xlim(0, 2000)
     plt.ylabel('Magnitud')
-    if save_images:
-        plt.tight_layout(); plt.savefig(os.path.join(images_dir,'Problema1_fft.png'))
+    plt.tight_layout()
+    plt.savefig(os.path.join(images_dir, 'Problema1_fft.png'))
     plt.show()
 
 if __name__ == '__main__':
