@@ -1,6 +1,6 @@
-import serial
+import serial #comunicacion por puerto serial (Puerto COM en este caso)
 import time
-import argparse
+import argparse #para parsear argumentos, como el puerto a escuchar (facilidad de escritura y lectura)
 
 try:
     import win32api

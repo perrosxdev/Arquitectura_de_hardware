@@ -1,5 +1,5 @@
-import serial
-import argparse
+import serial #comunicacion por puerto serial (Puerto COM en este caso)
+import argparse #para parsear argumentos, como el puerto y el comando a enviar (facilidad de escritura y lectura)
 
 def send_command(port, cmd, baud=9600):
     try:

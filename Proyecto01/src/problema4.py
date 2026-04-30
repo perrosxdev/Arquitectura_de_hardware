@@ -1,8 +1,8 @@
-import wave
-import struct
-import math
-import os
-from scipy.signal import resample_poly
+import wave #leer y escribir archivos WAV
+import struct #Convertir enteros a bytes y viceversa 
+import math #para funciones matematicas como sin y pi (es mas sencillo que numpy basicamente)
+import os #para manejo de archivos y directorios
+from scipy.signal import resample_poly # para decimacion pero en este caso no lo usamos porque no es necesario.
 
 AMPLITUD = 16000          # Amplitud máxima (16-bit: máx 32767)
 DURACION_NOTA = 1.0       # Cada nota dura 1 segundo
@@ -61,7 +61,7 @@ def escribir_mono(ruta: str, muestras: list[int], tasa: int) -> None:
     #abrir wav en modo escritura 
     with wave.open(ruta, 'w') as f:
         f.setnchannels(1)   # Mono
-        f.setsampwidth(2)   # 2 bytes por muestra = 16 bits
+        f.setsampwidth(2)   # 2 bytes por muestra
         f.setframerate(tasa) # Frames por segundo
         datos = b''.join(struct.pack('<h', m) for m in muestras) # cada numero entero en 2 bytes ordenados en little endian y el entero debe ser de 16 bits (h)
         f.writeframes(datos)
