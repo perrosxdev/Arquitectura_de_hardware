@@ -5,19 +5,19 @@ import os
 FREQ_0 = 9000 ; FREQ_1 = 5000; FREQ_2 = 100  # Frecuencia 1, 2 y 3
 SAMPLE = 20000 ; S_RATE = 20000.0 # Samples y Tasa de Muestreo
 nMAX = 20000
-
+#Ondas base
 aW = [
   [2*np.sin(2*np.pi * FREQ_0 * i/S_RATE) for i in range(SAMPLE)],
   [3*np.sin(2*np.pi * FREQ_1 * i/S_RATE) for i in range(SAMPLE)],
   [9*np.sin(2*np.pi * FREQ_2 * i/S_RATE) for i in range(SAMPLE)]
   ]
-
+#Señales compuestas
 aS = [
   np.array(aW[0]) + np.array(aW[1]),
   np.array(aW[0]) + np.array(aW[2]),
   np.array(aW[1]) * np.array(aW[2])
   ]
-
+# Filtro para cada señal (suavizador exponencial)
 def Filter_Comp(aV, nA):
     aF = np.zeros_like(aV)
     aF[0] = aV[0]
@@ -28,7 +28,7 @@ def Filter_Comp(aV, nA):
 def main(save_images=True):
   images_dir = os.path.join(os.path.dirname(__file__), 'ImagesRepo')
   os.makedirs(images_dir, exist_ok=True)
-  # Define un nA diferente para cada señal
+  # Define un nA(coeficiente de mezcla) diferente para cada señal
   nAs = [0.5, 0.6, 0.05]
 
   # Mostrar las 3 señales en una sola ventana 
