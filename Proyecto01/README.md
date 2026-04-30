@@ -126,6 +126,8 @@ def Filter_Comp(aV, nA):
 
 > Realice un programa en Python que controle el funcionamiento del WIMAMP o AIMP mediante el control de sus teclas asignadas para: PLAY, STOP, VOLUMEN +, VOLUMEN-, NEXT, PREVIOUS, PAUSE, etc. Utilice Win32Api de Python con el método User32.Keybd_event(.) para simular la presión y liberación de las teclas. Implemente un protocolo de comunicación serial mediante la utilización de VSPE. La aplicación cliente envía los comandos a la aplicación server que controla el reproductor de audio. Sea creativo e investigue afondo. Debe tener a lo menos 10 arhivos mp3/mp4 para ser reproducidos por el media player de su elección.
 
+Ver explicación y guía de uso detallada: [README_Problema3_Explicacion.md](README_Problema3_Explicacion.md)
+
 ---
 
 ## 🛠️ Qué debes hacer
