@@ -1,5 +1,8 @@
 # Explicación de Resultados – Problema 1
 
+### Que es FFT?
+- Es un algoritmo altamente eficiente para calcular la transformada
+
 ![Todas las etapas del problema 1](src/ImagesRepo/Problema1_todo_en_ventana.png)
 
 ---

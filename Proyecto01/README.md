@@ -14,6 +14,8 @@ Este documento contiene los enunciados originales del proyecto junto con indicac
 >
 > ¡Investigar FFT con numpy!
 
+Ver explicación y guía de uso detallada: [README_Problema1_Explicacion.md](README_Problema1_Explicacion.md)
+
 ---
 
 ## 💻 Código entregado
@@ -62,6 +64,7 @@ wi2 = w_1 + w_2                           # Sumamos 2 ondas
 
 > Utilizando el siguiente script grafique los datos mediante Matplotlib de Python utilizando el Filtro Complementario aplicados a las señales aS[0], aS[1] y aS[2]. Explique claramente sus resultados.
 
+Ver explicación y guía de uso detallada: [README_Problema2_Explicacion.md](README_Problema2_Explicacion.md)
 
 ```python
 import numpy as np, matplotlib.pyplot as plt
@@ -212,6 +215,8 @@ Debes implementar:
 >
 > ¡Investigar!
 
+Ver explicación y guía de uso detallada: [README_problema4_codigo.md](src/README_problema4_codigo.md)
+
 ---
 
 ## 🛠️ Qué debes hacer
@@ -345,7 +350,16 @@ Este proyecto evalúa:
 
 ---
 
-**Instalación y ejecución**
+  ---
+
+  **READMEs de explicación**
+
+  - [README_Problema1_Explicacion.md](README_Problema1_Explicacion.md)
+  - [README_Problema2_Explicacion.md](README_Problema2_Explicacion.md)
+  - [README_Problema3_Explicacion.md](README_Problema3_Explicacion.md)
+  - [README_problema4_codigo.md](src/README_problema4_codigo.md)
+
+  **Instalación y ejecución**
 
 - **Crear entorno virtual (Windows CMD / PowerShell)**:
 
