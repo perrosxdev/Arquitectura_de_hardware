@@ -75,10 +75,33 @@ def main():
     path = os.path.join(out_dir, 'part5_quiet_75pct_stereo.wav')
     write_stereo_wav(path, left_q, right_q, RATE)
 
-    # 6) Clean left channel (set left to zero)
-    left_zero = np.zeros_like(left)
-    path = os.path.join(out_dir, 'part6_left_cleaned_stereo.wav')
-    write_stereo_wav(path, left_zero, right, RATE)
+    # left_zero = np.zeros_like(left)
+    # path = os.path.join(out_dir, 'part6_left_cleaned_stereo.wav')
+    # write_stereo_wav(path, left_zero, right, RATE)
+    
+    # 6) Clean left channel using FFT and digital filter
+    # FFT
+    left_fft = np.fft.fft(left)
+    freqs = np.fft.fftfreq(len(left), 1/RATE)
+    # Eliminar componentes entre 200 y 600 Hz (ejemplo)
+    mask = (np.abs(freqs) > 200) & (np.abs(freqs) < 600)
+    left_fft[mask] = 0
+    # IFFT para reconstruir señal
+    left_filtered = np.fft.ifft(left_fft).real
+    # Filtro digital pasa bajas (ejemplo)
+    from scipy.signal import butter, lfilter
+    def butter_lowpass(cutoff, fs, order=5):
+        nyq = 0.5 * fs
+        normal_cutoff = cutoff / nyq
+        b, a = butter(order, normal_cutoff, btype='low', analog=False)
+        return b, a
+    def lowpass_filter(data, cutoff, fs, order=5):
+        b, a = butter_lowpass(cutoff, fs, order=order)
+        y = lfilter(b, a, data)
+        return y
+    left_final = lowpass_filter(left_filtered, cutoff=400, fs=RATE, order=6)
+    path = os.path.join(out_dir, 'part6_left_cleaned_fft_filtered_stereo.wav')
+    write_stereo_wav(path, left_final, right, RATE)
 
 if __name__ == '__main__':
     import struct
