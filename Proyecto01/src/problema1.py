@@ -8,10 +8,10 @@ SAMPLE = 44100   # Muestras por Segundo
 S_RATE = 44100.0 # Tasa de Muestreo
 
 def main(save_images=True):
-    s_1 = [np.sin(2*np.pi * FREQ_0 * i/S_RATE) for i in range(SAMPLE)]
-    s_2 = [np.sin(2*np.pi * FREQ_1 * i/S_RATE) for i in range(SAMPLE)]
+    s_1 = [np.sin(2*np.pi * FREQ_0 * i/S_RATE) for i in range(SAMPLE)] # Onda original (1000 Hz)
+    s_2 = [np.sin(2*np.pi * FREQ_1 * i/S_RATE) for i in range(SAMPLE)] # Onda ruido (50 Hz)
     w_1 = np.array(s_1) ; w_2 = np.array(s_2)
-    wi2 = w_1 + w_2
+    wi2 = w_1 + w_2 #señal original + ruido
 
     images_dir = os.path.join(os.path.dirname(__file__), 'ImagesRepo')
     os.makedirs(images_dir, exist_ok=True)
@@ -19,6 +19,8 @@ def main(save_images=True):
     # Mostrar todo en una sola ventana con subplots
     t = np.arange(SAMPLE) / S_RATE
     fig, axs = plt.subplots(4, 1, figsize=(8, 10))
+    
+    '''  Graficas señales '''
 
     # Señal original (1000 Hz) - 500 muestras
     axs[0].plot(w_1[:500], color='b')
