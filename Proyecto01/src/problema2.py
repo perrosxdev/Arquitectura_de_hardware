@@ -33,19 +33,29 @@ def main(save_images=True):
   # Choose a smoothing factor (nA) for the complementary filter
   nA = 0.02
 
+  # Mostrar las 3 señales en una sola ventana, con estilo similar al ejemplo
+  fig, axs = plt.subplots(3, 1, figsize=(9, 7))
+  fig.patch.set_facecolor('#bdbdbd')  # fondo gris
+
+  ylims = [(-6, 6), (-15, 15), (-30, 30)]
+  titles = ['Signal 1', 'Signal 2', 'Signal 3']
+
   for idx, sig in enumerate(aS):
     filt = Filter_Comp(sig, nA)
-
-    plt.figure(figsize=(8,3))
+    ax = axs[idx]
+    ax.set_facecolor('white')
     muestras = np.arange(200)
-    plt.plot(muestras, sig[:200], '-b', label='Original')
-    plt.plot(muestras, filt[:200], '-r', label='Filtrado')
-    plt.title(f'Problema2 - Señal {idx} (azul original, rojo filtrada)')
-    plt.xlabel('Muestra')
-    plt.legend()
-    if save_images:
-      plt.tight_layout(); plt.savefig(os.path.join(images_dir, f'Problema2_sig{idx}.png'))
-    plt.show()
+    ax.plot(muestras, sig[:200], '-b')
+    ax.plot(muestras, filt[:200], '-r')
+    ax.set_title(titles[idx], pad=6, fontsize=14)
+    ax.set_xlim(0, 200)
+    ax.set_ylim(ylims[idx])
+    ax.tick_params(axis='both', which='both', length=4)
+
+  plt.tight_layout()
+  if save_images:
+    plt.savefig(os.path.join(images_dir, 'Problema2_todas_senales.png'))
+  plt.show()
 
 if __name__ == '__main__':
   main()
