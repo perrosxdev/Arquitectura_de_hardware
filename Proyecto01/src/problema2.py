@@ -19,21 +19,19 @@ aS = [
   ]
 
 def Filter_Comp(aV, nA):
-  aF = np.zeros_like(aV)
-  aF[0] = aV[0]
-  limit = min(len(aV), nMAX)
-  for i in range(1, limit):
-    aF[i] = nA * aV[i] + (1.0 - nA) * aF[i-1]
-  return aF
+    aF = np.zeros_like(aV)
+    aF[0] = aV[0]
+    for i in range(1, nMAX):
+        aF[i] = nA * aV[i] + (1.0 - nA) * aF[i-1]
+    return aF
 
 def main(save_images=True):
   images_dir = os.path.join(os.path.dirname(__file__), 'ImagesRepo')
   os.makedirs(images_dir, exist_ok=True)
+  # Define un nA diferente para cada señal
+  nAs = [0.5, 0.6, 0.05]
 
-  # Choose a smoothing factor (nA) for the complementary filter
-  nA = 0.02
-
-  # Mostrar las 3 señales en una sola ventana, con estilo similar al ejemplo
+  # Mostrar las 3 señales en una sola ventana 
   fig, axs = plt.subplots(3, 1, figsize=(9, 7))
   fig.patch.set_facecolor('#bdbdbd')  # fondo gris
 
@@ -41,20 +39,23 @@ def main(save_images=True):
   titles = ['Signal 1', 'Signal 2', 'Signal 3']
 
   for idx, sig in enumerate(aS):
+    nA = nAs[idx]
     filt = Filter_Comp(sig, nA)
     ax = axs[idx]
     ax.set_facecolor('white')
     muestras = np.arange(200)
     ax.plot(muestras, sig[:200], '-b')
-    ax.plot(muestras, filt[:200], '-r')
+    ax.plot(muestras, filt[:200], '-r', label=f'nA={nA}')
     ax.set_title(titles[idx], pad=6, fontsize=14)
     ax.set_xlim(0, 200)
     ax.set_ylim(ylims[idx])
     ax.tick_params(axis='both', which='both', length=4)
+    ax.legend()
 
   plt.tight_layout()
   if save_images:
     plt.savefig(os.path.join(images_dir, 'Problema2_todas_senales.png'))
+  plt.show()
   plt.show()
 
 if __name__ == '__main__':
