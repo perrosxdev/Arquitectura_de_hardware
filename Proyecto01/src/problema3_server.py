@@ -1,5 +1,4 @@
 import serial
-import threading
 import time
 import argparse
 
@@ -8,8 +7,8 @@ try:
 except Exception:
     win32api = None
 
-# Virtual-key codes (Win32)
 VK = {
+    #para no escribir todo el codigo de las teclas virtuales, se asignan a cada comando un valor hexadecimal que corresponde a la tecla virtual
     'NEXT': 0xB0,
     'PREV': 0xB1,
     'STOP': 0xB2,
@@ -19,14 +18,18 @@ VK = {
     'VOL_UP': 0xAF,
 }
 
+# Verificar si win32 esta disponible
 def press_vk(vk):
+    #sino muestra esto
     if win32api is None:
         print('win32api no disponible: no se enviarán teclas (ejecutar en Windows con pywin32)')
         return
+    #si si lo esta envia la tecla virtual (la presiona)
     win32api.keybd_event(vk, 0, 0, 0)
-    time.sleep(0.02)
-    win32api.keybd_event(vk, 0, 2, 0)
+    # time.sleep(0.02) # Espera un poco
+    win32api.keybd_event(vk, 0, 2, 0) # Suelta la tecla
 
+#imprimimos para saber que esta llegando
 def handle_command(cmd):
     c = cmd.strip().upper()
     print('Recibido comando:', c)
