@@ -1,3 +1,27 @@
+#
+# Explicación de cada función del código
+#
+
+## Explicación de las funciones principales
+
+### generar_muestras
+Esta función crea una lista de números que representan una onda de sonido (senoidal) para una frecuencia, duración y sample rate dados. Básicamente, simula cómo se vería la onda de una nota musical en la computadora, generando los valores que luego se guardan en el archivo de audio. Cada valor es la amplitud de la onda en un instante de tiempo.
+
+### generar_muestras_decimacion
+Esta versión hace lo mismo que la anterior (genera la onda), pero después aplica **decimación**: se queda solo con 1 de cada N valores (por ejemplo, si N=2, toma uno, salta uno, toma uno, etc). Esto reduce la cantidad de datos y puede simular una señal con menos "detalle" o menor tasa de muestreo. Es útil para experimentar cómo afecta la decimación al sonido.
+
+### escribir_mono
+Toma una lista de muestras y la guarda en un archivo WAV mono (un solo canal). Convierte cada número a bytes usando `struct.pack` y los escribe en el archivo. Así puedes escuchar la señal generada en cualquier reproductor.
+
+### escribir_estereo
+Hace lo mismo que `escribir_mono`, pero para dos canales (izquierdo y derecho). Junta los valores de ambos canales y los guarda intercalados en el archivo WAV estéreo.
+
+### leer_estereo
+Abre un archivo WAV estéreo y separa los valores de los canales izquierdo y derecho, devolviéndolos como dos listas. Usa `struct.unpack` para convertir los bytes del archivo de vuelta a números. Esto permite modificar o analizar el audio ya guardado.
+
+### main
+Es la función principal que ejecuta todos los pasos del problema: genera las escalas, la onda compuesta, baja el volumen y limpia el canal izquierdo, llamando a las funciones anteriores en el orden correcto.
+
 # Explicación del Código – problema4.py
 
 ## Resumen General

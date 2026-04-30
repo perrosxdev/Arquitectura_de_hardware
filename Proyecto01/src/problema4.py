@@ -1,111 +1,155 @@
 import wave
 import struct
-import numpy as np
+import math
 import os
+from scipy.signal import resample_poly
 
-def freq_from_semitone_offset(offset):
-    return 440.0 * (2.0 ** (offset / 12.0))
+AMPLITUD = 16000          # Amplitud máxima (16-bit: máx 32767)
+DURACION_NOTA = 1.0       # Cada nota dura 1 segundo
 
-def write_mono_wav(path, samples, rate):
-    with wave.open(path, 'w') as wf:
-        wf.setnchannels(1)
-        wf.setsampwidth(2)
-        wf.setframerate(rate)
-        wf.writeframes(b''.join(struct.pack('<h', int(s)) for s in samples))
+# Escala pentatónica mayor de Do: 5 notas
+# Frecuencias exactas usando la fórmula: f = 440 * 2^(semitono/12)
+NOTAS = {
+    'Do4': 440.0 * (2 ** (-9 / 12)),   # C4 ≈ 261.63 Hz
+    'Re4': 440.0 * (2 ** (-7 / 12)),   # D4 ≈ 293.66 Hz
+    'Mi4': 440.0 * (2 ** (-5 / 12)),   # E4 ≈ 329.63 Hz
+    'Sol4': 440.0 * (2 ** (-2 / 12)),  # G4 ≈ 392.00 Hz
+    'La4': 440.0 * (2 ** ( 0 / 12)),   # A4 = 440.00 Hz
+}
 
-def write_stereo_wav(path, left, right, rate):
-    with wave.open(path, 'w') as wf:
-        wf.setnchannels(2)
-        wf.setsampwidth(2)
-        wf.setframerate(rate)
-        frames = []
-        for l, r in zip(left, right):
-            frames.append(struct.pack('<hh', int(l), int(r)))
-        wf.writeframes(b''.join(frames))
+# Orden ascendente y descendente
+ASCENDENTE  = ['Do4', 'Re4', 'Mi4', 'Sol4', 'La4']
+DESCENDENTE = ['La4', 'Sol4', 'Mi4', 'Re4', 'Do4']
 
-def tone(freq, duration, rate, amplitude=16000):
-    t = np.linspace(0, duration, int(rate*duration), endpoint=False)
-    return amplitude * np.sin(2*np.pi*freq*t)
+CARPETA = 'wav_out'
+os.makedirs(CARPETA, exist_ok=True)
+
+
+# def generar_muestras(frecuencia: float, duracion: float, tasa: int, decimacion: int = 2, amplitud: float = AMPLITUD) -> list[int]:
+#     """
+#     Genera una lista de muestras PCM 16-bit para una onda senoidal y aplica decimación.
+#     Decimación: solo se toma 1 de cada N muestras (N=decimacion).
+#     """
+#     n_muestras = int(tasa * duracion)
+#     muestras = [
+#         int(amplitud * math.sin(2 * math.pi * frecuencia * i / tasa))
+#         for i in range(n_muestras)
+#     ]
+#     decimadas = resample_poly(muestras, up=1, down=decimacion)
+#     return [int(m) for m in decimadas]
+
+def generar_muestras(frecuencia: float, duracion: float, tasa: int,
+                     amplitud: float = AMPLITUD) -> list[int]:
+    n_muestras = int(tasa * duracion)
+    return [
+        int(amplitud * math.sin(2 * math.pi * frecuencia * i / tasa))
+        for i in range(n_muestras)
+    ]
+
+
+def escribir_mono(ruta: str, muestras: list[int], tasa: int) -> None:
+    """
+    struct.pack('<h', m) convierte cada muestra entera en 2 bytes
+    en formato little-endian con signo (signed short).
+    """
+    with wave.open(ruta, 'w') as f:
+        f.setnchannels(1)   # Mono
+        f.setsampwidth(2)   # 2 bytes por muestra = 16 bits
+        f.setframerate(tasa)
+        datos = b''.join(struct.pack('<h', m) for m in muestras)
+        f.writeframes(datos)
+    print(f'  [OK] {ruta}  ({len(muestras)} muestras, {tasa} Hz, mono)')
+
+
+def escribir_estereo(ruta: str, izq: list[int], der: list[int],
+                     tasa: int) -> None:
+    """
+    En formato WAV estéreo, los frames se intercalan: [L, R, L, R, ...]
+    struct.pack('<hh', l, r) empaqueta ambos canales en 4 bytes por frame.
+    """
+    with wave.open(ruta, 'w') as f:
+        f.setnchannels(2)
+        f.setsampwidth(2)
+        f.setframerate(tasa)
+        datos = b''.join(struct.pack('<hh', l, r) for l, r in zip(izq, der))
+        f.writeframes(datos)
+    n = min(len(izq), len(der))
+    print(f'  [OK] {ruta}  ({n} frames, {tasa} Hz, estéreo)')
+
+
+def leer_estereo(ruta: str) -> tuple[list[int], list[int], int]:
+    """
+    Lee un archivo WAV estéreo y retorna (canal_izq, canal_der, tasa).
+    struct.unpack('<hh', frame) desempaqueta 4 bytes en dos enteros de 16 bits.
+    """
+    with wave.open(ruta, 'r') as f:
+        tasa = f.getframerate()
+        n_frames = f.getnframes()
+        raw = f.readframes(n_frames)
+
+    izq, der = [], []
+    tam_frame = 4  # 2 bytes canal izq + 2 bytes canal der
+    for i in range(0, len(raw), tam_frame):
+        l, r = struct.unpack('<hh', raw[i:i + tam_frame])
+        izq.append(l)
+        der.append(r)
+
+    return izq, der, tasa
 
 def main():
-    out_dir = os.path.join(os.path.dirname(__file__), 'wav_out')
-    os.makedirs(out_dir, exist_ok=True)
+    # Escala pentatónica Do→La, 44100 Hz, Mono
+    tasa = 44100
+    muestras = []
+    for nombre in ASCENDENTE:
+        muestras += generar_muestras(NOTAS[nombre], DURACION_NOTA, tasa)
+    escribir_mono(
+        os.path.join(CARPETA, 'escala_pentatonica_DoReMiSolLa_44100Hz_mono.wav'),
+        muestras, tasa
+    )
 
-    # Desplazamientos de semitonos relativos a A4 (440 Hz)
-    notes_offsets = {'C4': -9, 'D4': -7, 'E4': -5, 'F4': -4, 'G4': -2, 'A4': 0, 'B4': 2}
-    pentatonic = ['C4','D4','E4','F4','G4','A4','B4']
+    # Escala pentatónica La→Do, 22050 Hz, Estéreo
+    tasa = 22050
+    muestras = []
+    for nombre in DESCENDENTE:
+        muestras += generar_muestras(NOTAS[nombre], DURACION_NOTA, tasa)
+    escribir_estereo(
+        os.path.join(CARPETA, 'escala_pentatonica_LaSolMiReDo_22050Hz_estereo.wav'),
+        muestras, muestras, tasa
+    )
+    # Escala pentatónica Do→La, 8000 Hz, Mono
+    tasa = 8000
+    muestras = []
+    for nombre in ASCENDENTE:
+        muestras += generar_muestras(NOTAS[nombre], DURACION_NOTA, tasa)
+    escribir_mono(
+        os.path.join(CARPETA, 'escala_pentatonica_DoReMiSolLa_8000Hz_mono.wav'),
+        muestras, tasa
+    )
+    # Onda compuesta 500 Hz + 250 Hz, 10s, Estéreo
+    tasa = 44100
+    duracion = 10
+    n = int(tasa * duracion)
+    canal = [
+        int(8000 * math.sin(2 * math.pi * 500.0 * i / tasa) +
+            8000 * math.sin(2 * math.pi * 250.0 * i / tasa))
+        for i in range(n)
+    ]
+    ruta_onda = os.path.join(CARPETA, 'onda_compuesta_500Hz_250Hz_10s_44100Hz_estereo.wav')
+    escribir_estereo(ruta_onda, canal, canal, tasa)
 
-    # 1) Escala pentatónica en mono a 44100 Hz
-    RATE = 44100
-    for note in pentatonic:
-        f = freq_from_semitone_offset(notes_offsets[note])
-        s = tone(f, 1.0, RATE)
-        nombre_nota = note.replace('C4','Do').replace('D4','Re').replace('E4','Mi').replace('F4','Fa').replace('G4','Sol').replace('A4','La').replace('B4','Si')
-        path = os.path.join(out_dir, f'escala_pentatonica_{nombre_nota}_{RATE}Hz_mono.wav')
-        write_mono_wav(path, s, RATE)
+    # Volumen al 25% (bajar 75%)
+    izq, der, tasa = leer_estereo(ruta_onda)
+    izq_bajo = [int(m * 0.25) for m in izq]
+    der_bajo = [int(m * 0.25) for m in der]
+    ruta_bajo = os.path.join(CARPETA, 'onda_volumen_25pct_44100Hz_estereo.wav')
+    escribir_estereo(ruta_bajo, izq_bajo, der_bajo, tasa)
 
-    # 2) Escala pentatónica invertida en estéreo a 22050 Hz
-    RATE = 22050
-    rev = list(reversed(pentatonic))
-    left = np.concatenate([tone(freq_from_semitone_offset(notes_offsets[n]), 1.0, RATE) for n in rev])
-    right = left.copy()
-    nombre_notas = '_'.join([n.replace('C4','Do').replace('D4','Re').replace('E4','Mi').replace('F4','Fa').replace('G4','Sol').replace('A4','La').replace('B4','Si') for n in rev])
-    path = os.path.join(out_dir, f'escala_pentatonica_invertida_{nombre_notas}_{RATE}Hz_estereo.wav')
-    write_stereo_wav(path, left, right, RATE)
+    # Canal izquierdo en silencio (con 0)
+    izq2, der2, tasa = leer_estereo(ruta_bajo)
+    canal_izq_silencio = [0] * len(izq2)
+    ruta_limpio = os.path.join(CARPETA, 'onda_canal_izq_silencio_44100Hz_estereo.wav')
+    escribir_estereo(ruta_limpio, canal_izq_silencio, der2, tasa)
 
-    # 3) Escala pentatónica en mono a 8000 Hz
-    RATE = 8000
-    for note in pentatonic:
-        f = freq_from_semitone_offset(notes_offsets[note])
-        s = tone(f, 1.0, RATE)
-        nombre_nota = note.replace('C4','Do').replace('D4','Re').replace('E4','Mi').replace('F4','Fa').replace('G4','Sol').replace('A4','La').replace('B4','Si')
-        path = os.path.join(out_dir, f'escala_pentatonica_{nombre_nota}_{RATE}Hz_mono.wav')
-        write_mono_wav(path, s, RATE)
-
-    # 4) Señal combinada estéreo de 10 segundos, RATE=44100
-    RATE = 44100
-    dur = 10
-    s1 = tone(500.0, dur, RATE, amplitude=8000)
-    s2 = tone(250.0, dur, RATE, amplitude=8000)
-    left = s1 + s2
-    right = s1 + s2
-    path = os.path.join(out_dir, 'senal_combinada_500Hz_250Hz_10s_44100Hz_estereo.wav')
-    write_stereo_wav(path, left, right, RATE)
-
-    # 5) Bajar el volumen en un 75% (multiplicar por 0.25)
-    left_q = left * 0.25
-    right_q = right * 0.25
-    path = os.path.join(out_dir, 'senal_combinada_500Hz_250Hz_10s_44100Hz_estereo_volumen25.wav')
-    write_stereo_wav(path, left_q, right_q, RATE)
-
-    # left_zero = np.zeros_like(left)
-    # path = os.path.join(out_dir, 'canal_izquierdo_limpio_estereo.wav')
-    # write_stereo_wav(path, left_zero, right, RATE)
-    
-    # 6) Limpiar el canal izquierdo usando FFT y filtro digital
-    # FFT
-    left_fft = np.fft.fft(left)
-    freqs = np.fft.fftfreq(len(left), 1/RATE)
-    # Eliminar componentes entre 200 y 600 Hz (ejemplo)
-    mask = (np.abs(freqs) > 200) & (np.abs(freqs) < 600)
-    left_fft[mask] = 0
-    # IFFT para reconstruir la señal
-    left_filtered = np.fft.ifft(left_fft).real
-    # Filtro digital pasa bajas (ejemplo)
-    from scipy.signal import butter, lfilter
-    def butter_lowpass(cutoff, fs, order=5):
-        nyq = 0.5 * fs
-        normal_cutoff = cutoff / nyq
-        b, a = butter(order, normal_cutoff, btype='low', analog=False)
-        return b, a
-    def lowpass_filter(data, cutoff, fs, order=5):
-        b, a = butter_lowpass(cutoff, fs, order=order)
-        y = lfilter(b, a, data)
-        return y
-    left_final = lowpass_filter(left_filtered, cutoff=400, fs=RATE, order=6)
-    path = os.path.join(out_dir, 'canal_izquierdo_filtrado_fft_pasabajas_estereo.wav')
-    write_stereo_wav(path, left_final, right, RATE)
-
+# Para ejecución directa y compatibilidad con el GUI
 if __name__ == '__main__':
-    import struct
     main()
