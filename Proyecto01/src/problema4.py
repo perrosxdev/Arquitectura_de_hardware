@@ -31,62 +31,65 @@ def main():
     out_dir = os.path.join(os.path.dirname(__file__), 'wav_out')
     os.makedirs(out_dir, exist_ok=True)
 
-    # Semitone offsets relative to A4 (440 Hz)
+    # Desplazamientos de semitonos relativos a A4 (440 Hz)
     notes_offsets = {'C4': -9, 'D4': -7, 'E4': -5, 'F4': -4, 'G4': -2, 'A4': 0, 'B4': 2}
     pentatonic = ['C4','D4','E4','F4','G4','A4','B4']
 
-    # 1) Pentatonic mono 44100
+    # 1) Escala pentatónica en mono a 44100 Hz
     RATE = 44100
     for note in pentatonic:
         f = freq_from_semitone_offset(notes_offsets[note])
         s = tone(f, 1.0, RATE)
-        path = os.path.join(out_dir, f'part1_{note}_{RATE}Hz_mono.wav')
+        nombre_nota = note.replace('C4','Do').replace('D4','Re').replace('E4','Mi').replace('F4','Fa').replace('G4','Sol').replace('A4','La').replace('B4','Si')
+        path = os.path.join(out_dir, f'escala_pentatonica_{nombre_nota}_{RATE}Hz_mono.wav')
         write_mono_wav(path, s, RATE)
 
-    # 2) Reverse pentatonic stereo 22050
+    # 2) Escala pentatónica invertida en estéreo a 22050 Hz
     RATE = 22050
     rev = list(reversed(pentatonic))
     left = np.concatenate([tone(freq_from_semitone_offset(notes_offsets[n]), 1.0, RATE) for n in rev])
     right = left.copy()
-    path = os.path.join(out_dir, 'part2_rev_pentatonic_22050Hz_stereo.wav')
+    nombre_notas = '_'.join([n.replace('C4','Do').replace('D4','Re').replace('E4','Mi').replace('F4','Fa').replace('G4','Sol').replace('A4','La').replace('B4','Si') for n in rev])
+    path = os.path.join(out_dir, f'escala_pentatonica_invertida_{nombre_notas}_{RATE}Hz_estereo.wav')
     write_stereo_wav(path, left, right, RATE)
 
-    # 3) Pentatonic mono 8000
+    # 3) Escala pentatónica en mono a 8000 Hz
     RATE = 8000
     for note in pentatonic:
         f = freq_from_semitone_offset(notes_offsets[note])
         s = tone(f, 1.0, RATE)
-        path = os.path.join(out_dir, f'part3_{note}_{RATE}Hz_mono.wav')
+        nombre_nota = note.replace('C4','Do').replace('D4','Re').replace('E4','Mi').replace('F4','Fa').replace('G4','Sol').replace('A4','La').replace('B4','Si')
+        path = os.path.join(out_dir, f'escala_pentatonica_{nombre_nota}_{RATE}Hz_mono.wav')
         write_mono_wav(path, s, RATE)
 
-    # 4) Stereo combined signal 10s, RATE=44100
+    # 4) Señal combinada estéreo de 10 segundos, RATE=44100
     RATE = 44100
     dur = 10
     s1 = tone(500.0, dur, RATE, amplitude=8000)
     s2 = tone(250.0, dur, RATE, amplitude=8000)
     left = s1 + s2
     right = s1 + s2
-    path = os.path.join(out_dir, 'part4_combined_44100_stereo.wav')
+    path = os.path.join(out_dir, 'senal_combinada_500Hz_250Hz_10s_44100Hz_estereo.wav')
     write_stereo_wav(path, left, right, RATE)
 
-    # 5) Lower volume by 75% (multiply by 0.25)
+    # 5) Bajar el volumen en un 75% (multiplicar por 0.25)
     left_q = left * 0.25
     right_q = right * 0.25
-    path = os.path.join(out_dir, 'part5_quiet_75pct_stereo.wav')
+    path = os.path.join(out_dir, 'senal_combinada_500Hz_250Hz_10s_44100Hz_estereo_volumen25.wav')
     write_stereo_wav(path, left_q, right_q, RATE)
 
     # left_zero = np.zeros_like(left)
-    # path = os.path.join(out_dir, 'part6_left_cleaned_stereo.wav')
+    # path = os.path.join(out_dir, 'canal_izquierdo_limpio_estereo.wav')
     # write_stereo_wav(path, left_zero, right, RATE)
     
-    # 6) Clean left channel using FFT and digital filter
+    # 6) Limpiar el canal izquierdo usando FFT y filtro digital
     # FFT
     left_fft = np.fft.fft(left)
     freqs = np.fft.fftfreq(len(left), 1/RATE)
     # Eliminar componentes entre 200 y 600 Hz (ejemplo)
     mask = (np.abs(freqs) > 200) & (np.abs(freqs) < 600)
     left_fft[mask] = 0
-    # IFFT para reconstruir señal
+    # IFFT para reconstruir la señal
     left_filtered = np.fft.ifft(left_fft).real
     # Filtro digital pasa bajas (ejemplo)
     from scipy.signal import butter, lfilter
@@ -100,7 +103,7 @@ def main():
         y = lfilter(b, a, data)
         return y
     left_final = lowpass_filter(left_filtered, cutoff=400, fs=RATE, order=6)
-    path = os.path.join(out_dir, 'part6_left_cleaned_fft_filtered_stereo.wav')
+    path = os.path.join(out_dir, 'canal_izquierdo_filtrado_fft_pasabajas_estereo.wav')
     write_stereo_wav(path, left_final, right, RATE)
 
 if __name__ == '__main__':
