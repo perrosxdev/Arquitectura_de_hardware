@@ -16,30 +16,38 @@ def main(save_images=True):
     images_dir = os.path.join(os.path.dirname(__file__), 'ImagesRepo')
     os.makedirs(images_dir, exist_ok=True)
 
-    # Time domain (show first 0.05s)
+    # Mostrar todo en una sola ventana con subplots
     t = np.arange(SAMPLE) / S_RATE
-    plt.figure(figsize=(8,3))
-    plt.plot(t[:2205], wi2[:2205])
-    plt.title('Señal combinada en dominio del tiempo (primeros 0.05 s)')
-    plt.xlabel('Tiempo [s]')
-    plt.ylabel('Amplitud')
-    plt.tight_layout()
-    plt.savefig(os.path.join(images_dir, 'Problema1_time.png'))
-    plt.show()
+    fig, axs = plt.subplots(4, 1, figsize=(8, 10))
 
-    # FFT
+    # Señal original (1000 Hz) - 500 muestras
+    axs[0].plot(w_1[:500], color='b')
+    axs[0].set_title('Onda Original')
+    axs[0].set_ylabel('Amplitud')
+
+    # Señal ruido (50 Hz) - 4000 muestras
+    axs[1].plot(w_2[:4000], color='b')
+    axs[1].set_title('Onda Ruido')
+    axs[1].set_ylabel('Amplitud')
+
+    # Suma de ambas - 500 muestras
+    axs[2].plot(wi2[:500], color='b')
+    axs[2].set_title('Onda Original + Ruidosa')
+    axs[2].set_ylabel('Amplitud')
+
+    # FFT de la suma
     yf = np.fft.fft(wi2)
     xf = np.fft.fftfreq(SAMPLE, 1.0/S_RATE)
-    pos = xf >= 0
+    pos = (xf >= 0) & (xf <= 1200)
+    axs[3].plot(xf[pos], np.abs(yf[pos]), color='b')
+    axs[3].set_title('Frecuencias en las Ondas (FFT)')
+    axs[3].set_xlabel('Frecuencia [Hz]')
+    axs[3].set_ylabel('Magnitud')
+    axs[3].set_xlim(0, 1200)
 
-    plt.figure(figsize=(8,3))
-    plt.plot(xf[pos], np.abs(yf[pos]))
-    plt.title('FFT - Magnitud')
-    plt.xlabel('Frecuencia [Hz]')
-    plt.xlim(0, 2000)
-    plt.ylabel('Magnitud')
     plt.tight_layout()
-    plt.savefig(os.path.join(images_dir, 'Problema1_fft.png'))
+    if save_images:
+        plt.savefig(os.path.join(images_dir, 'Problema1_todo_en_ventana.png'))
     plt.show()
 
 if __name__ == '__main__':
